@@ -1,4 +1,4 @@
-NODE_VERSION=16
+NODE_VERSION=22
 TEST_IMG_NAME=canvas-lambda-test
 
 help:
@@ -11,6 +11,7 @@ help:
 
 build: clean
 	docker build . \
+		--platform linux/amd64 \
 		--build-arg NODE_VERSION="${NODE_VERSION}" \
 		--tag node${NODE_VERSION}-canvas-layers
 	mkdir -p build

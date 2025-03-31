@@ -1,15 +1,24 @@
-FROM arm64v8/amazonlinux:latest
+FROM amd64/amazonlinux:2.0.20230307.0
 
 ARG OUT=/root/layers
 ARG NODE_VERSION=16
 
 # set up container
-RUN yum -y update \
-&& yum -y groupinstall "Development Tools" \
-&& curl --silent --location https://rpm.nodesource.com/setup_${NODE_VERSION}.x | bash - \
-&& yum install -y \
-	nodejs \
-	python37 \
+RUN yum -y update 
+RUN yum -y groupinstall "Development Tools" 
+
+# Install Python 3.8
+RUN amazon-linux-extras enable python3.8 && \
+	yum install -y python3.8 && \
+	ln -sf /usr/bin/python3.8 /usr/bin/python3
+
+RUN curl --silent --location https://unofficial-builds.nodejs.org/download/release/v22.14.0/node-v22.14.0-linux-x64-glibc-217.tar.gz -o node-v22.14.0-linux-x64-glibc-217.tar.gz \
+	&& tar -xvf node-v22.14.0-linux-x64-glibc-217.tar.gz \
+	&& mv node-v22.14.0-linux-x64-glibc-217 /usr/local/nodejs \
+	&& ln -s /usr/local/nodejs/bin/node /usr/local/bin/node \
+	&& ln -s /usr/local/nodejs/bin/npm /usr/local/bin/npm
+
+RUN yum install -y \
 	which \
 	binutils \
 	sed \
@@ -17,26 +26,23 @@ RUN yum -y update \
 	cairo-devel \
 	libjpeg-turbo-devel \
 	pango-devel \
-	giflib-devel
+	giflib-devel \
+	py-setuptools
 
 # will be created and become working dir
 WORKDIR $OUT/nodejs
 
-RUN npm install --build-from-source \
-canvas@2 \
-chartjs-plugin-datalabels@2 \
-chartjs-node-canvas@4 \
-chart.js@3
+RUN npm install --build-from-source canvas@3.1.0
 
 # will be created and become working dir
 WORKDIR $OUT/lib
 
 # gather missing libraries
 RUN curl https://raw.githubusercontent.com/ncopa/lddtree/v1.26/lddtree.sh -o $OUT/lddtree.sh \
-&& chmod +x $OUT/lddtree.sh \
-&& cp $($OUT/lddtree.sh -l $OUT/nodejs/node_modules/canvas/build/Release/canvas.node | grep '^\/lib' | sed -r -e '/canvas.node$/d') .
+	&& chmod +x $OUT/lddtree.sh \
+	&& cp $($OUT/lddtree.sh -l $OUT/nodejs/node_modules/canvas/build/Release/canvas.node | grep '^\/lib' | sed -r -e '/canvas.node$/d') .
 
 WORKDIR $OUT
 
 RUN zip -r -9 node${NODE_VERSION}_canvas_layer.zip nodejs \
-&& zip -r -9 node${NODE_VERSION}_canvas_lib64_layer.zip lib
+	&& zip -r -9 node${NODE_VERSION}_canvas_lib64_layer.zip lib
