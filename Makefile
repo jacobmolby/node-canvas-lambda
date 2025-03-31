@@ -9,32 +9,26 @@ help:
 	@echo " make test    — Test the layers, test pass if data uri is output"
 	@echo " make clean   — Remove built layers"
 
-build: clean
+build: 	clean
 	docker build . \
 		--platform linux/amd64 \
+		--build-arg OUT="/root/layers" \
 		--build-arg NODE_VERSION="${NODE_VERSION}" \
 		--tag node${NODE_VERSION}-canvas-layers
 	mkdir -p build
-	docker create -ti --name dummy node${NODE_VERSION}-canvas-layers bash
-	docker cp dummy:/root/layers/node${NODE_VERSION}_canvas_lib64_layer.zip build/
-	docker cp dummy:/root/layers/node${NODE_VERSION}_canvas_layer.zip build/
+	docker create --platform linux/amd64 -ti --name dummy node${NODE_VERSION}-canvas-layers bash
+	docker cp dummy:/root/layers/node${NODE_VERSION}_canvas_combined_layer.zip build/
 	docker rm -f dummy
 
-publish-lib:
+publish-combined:
 	aws lambda publish-layer-version \
-		--layer-name "node${NODE_VERSION}CanvasLib64" \
+		--layer-name "node-canvas" \
 		--compatible-runtimes nodejs${NODE_VERSION}.x \
-		--zip-file "fileb://build/node${NODE_VERSION}_canvas_lib64_layer.zip" \
-		--description "Node canvas lib 64"
+		--zip-file "fileb://build/node${NODE_VERSION}_canvas_combined_layer.zip" \
+		--description "canvas@3.1.0" \
+		--profile feedr-management
 
-publish-nodejs:
-	aws lambda publish-layer-version \
-		--layer-name "node${NODE_VERSION}Canvas" \
-		--compatible-runtimes nodejs${NODE_VERSION}.x \
-		--zip-file "fileb://build/node${NODE_VERSION}_canvas_layer.zip" \
-		--description "A Lambda Layer which includes node canvas, chart.js, chartjs-node-canvas, chartjs-plugin-datalabels"
-
-publish: build publish-lib publish-nodejs
+publish: build publish-combined
 
 
 # This doesn't work for some reason. It would be nice to use this instead of the 
@@ -49,12 +43,13 @@ publish: build publish-lib publish-nodejs
 
 test: unzip-layers
 
-	docker run \
+	docker run --platform linux/amd64 \
 		-p 9564:8080 \
 		-d \
 		--rm \
 		--name ${TEST_IMG_NAME} \
 		$$( docker build \
+			--platform linux/amd64 \
 			--no-cache \
 			--build-arg NODE_VERSION=${NODE_VERSION} \
 			--file test.dockerfile \
@@ -72,7 +67,7 @@ test: unzip-layers
 
 debug: build unzip-layers
 
-	docker run \
+	docker run --platform linux/amd64 \
 		--rm \
 		-it \
 		--volume "$$(pwd)":/var/task:ro,delegated \
@@ -87,10 +82,10 @@ unzip-layers: nodejs
 unzip-layers: lib
 
 nodejs:
-	unzip build/node${NODE_VERSION}_canvas_layer.zip
+	unzip build/node${NODE_VERSION}_canvas_combined_layer.zip
 
 lib:
-	unzip build/node${NODE_VERSION}_canvas_lib64_layer.zip
+	unzip build/node${NODE_VERSION}_canvas_combined_layer.zip
 
 clean:
 	rm -rf build lib nodejs

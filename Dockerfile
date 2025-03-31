@@ -1,7 +1,7 @@
 FROM amd64/amazonlinux:2.0.20230307.0
 
 ARG OUT=/root/layers
-ARG NODE_VERSION=16
+ARG NODE_VERSION=22
 
 # set up container
 RUN yum -y update 
@@ -27,12 +27,16 @@ RUN yum install -y \
 	libjpeg-turbo-devel \
 	pango-devel \
 	giflib-devel \
+	pixman-devel \
 	py-setuptools
 
 # will be created and become working dir
 WORKDIR $OUT/nodejs
 
-RUN npm install --build-from-source canvas@3.1.0
+RUN npm install --build-from-source canvas@3.1.0 \
+	chartjs-plugin-datalabels@2 \
+	chartjs-node-canvas@4 \
+	chart.js@3
 
 # will be created and become working dir
 WORKDIR $OUT/lib
@@ -44,5 +48,5 @@ RUN curl https://raw.githubusercontent.com/ncopa/lddtree/v1.26/lddtree.sh -o $OU
 
 WORKDIR $OUT
 
-RUN zip -r -9 node${NODE_VERSION}_canvas_layer.zip nodejs \
-	&& zip -r -9 node${NODE_VERSION}_canvas_lib64_layer.zip lib
+# Instead of creating two separate zip files, create one combined zip file
+RUN zip -r -9 node${NODE_VERSION}_canvas_combined_layer.zip nodejs lib
