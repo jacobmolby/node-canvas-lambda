@@ -20,15 +20,13 @@ build: 	clean
 	docker cp dummy:/root/layers/node${NODE_VERSION}_canvas_combined_layer.zip build/
 	docker rm -f dummy
 
-publish-combined:
+publish:
 	aws lambda publish-layer-version \
 		--layer-name "node-canvas" \
 		--compatible-runtimes nodejs${NODE_VERSION}.x \
 		--zip-file "fileb://build/node${NODE_VERSION}_canvas_combined_layer.zip" \
 		--description "canvas@3.1.0" \
 		--profile feedr-management
-
-publish: build publish-combined
 
 
 # This doesn't work for some reason. It would be nice to use this instead of the 

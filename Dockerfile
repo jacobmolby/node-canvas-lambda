@@ -30,13 +30,12 @@ RUN yum install -y \
 	pixman-devel \
 	py-setuptools
 
+
+
 # will be created and become working dir
 WORKDIR $OUT/nodejs
 
-RUN npm install --build-from-source canvas@3.1.0 \
-	chartjs-plugin-datalabels@2 \
-	chartjs-node-canvas@4 \
-	chart.js@3
+RUN npm install --build-from-source canvas@3.1.0
 
 # will be created and become working dir
 WORKDIR $OUT/lib
