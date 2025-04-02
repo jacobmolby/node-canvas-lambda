@@ -1,4 +1,4 @@
-FROM amd64/amazonlinux:2.0.20230307.0
+FROM amd64/amazonlinux:2023
 
 ARG OUT=/root/layers
 ARG NODE_VERSION=22
@@ -7,11 +7,7 @@ ARG NODE_VERSION=22
 RUN yum -y update 
 RUN yum -y groupinstall "Development Tools" 
 
-# Install Python 3.8
-RUN amazon-linux-extras enable python3.8 && \
-	yum install -y python3.8 && \
-	ln -sf /usr/bin/python3.8 /usr/bin/python3
-
+# TODO: probably just install with yum?
 RUN curl --silent --location https://unofficial-builds.nodejs.org/download/release/v22.14.0/node-v22.14.0-linux-x64-glibc-217.tar.gz -o node-v22.14.0-linux-x64-glibc-217.tar.gz \
 	&& tar -xvf node-v22.14.0-linux-x64-glibc-217.tar.gz \
 	&& mv node-v22.14.0-linux-x64-glibc-217 /usr/local/nodejs \
@@ -28,9 +24,7 @@ RUN yum install -y \
 	pango-devel \
 	giflib-devel \
 	pixman-devel \
-	py-setuptools
-
-
+	librsvg2-devel 
 
 # will be created and become working dir
 WORKDIR $OUT/nodejs
