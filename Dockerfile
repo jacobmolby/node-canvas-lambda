@@ -7,7 +7,7 @@ ARG NODE_VERSION=22
 RUN yum -y update 
 RUN yum -y groupinstall "Development Tools" 
 
-# TODO: probably just install with yum?
+
 RUN curl --silent --location https://unofficial-builds.nodejs.org/download/release/v22.14.0/node-v22.14.0-linux-x64-glibc-217.tar.gz -o node-v22.14.0-linux-x64-glibc-217.tar.gz \
 	&& tar -xvf node-v22.14.0-linux-x64-glibc-217.tar.gz \
 	&& mv node-v22.14.0-linux-x64-glibc-217 /usr/local/nodejs \
