@@ -8,11 +8,11 @@ RUN yum -y update
 RUN yum -y groupinstall "Development Tools" 
 
 
-RUN curl --silent --location https://unofficial-builds.nodejs.org/download/release/v22.14.0/node-v22.14.0-linux-x64-glibc-217.tar.gz -o node-v22.14.0-linux-x64-glibc-217.tar.gz \
-	&& tar -xvf node-v22.14.0-linux-x64-glibc-217.tar.gz \
-	&& mv node-v22.14.0-linux-x64-glibc-217 /usr/local/nodejs \
-	&& ln -s /usr/local/nodejs/bin/node /usr/local/bin/node \
-	&& ln -s /usr/local/nodejs/bin/npm /usr/local/bin/npm
+# Install node 22
+RUN yum install -y gcc-c++ make 
+RUN curl -sL https://rpm.nodesource.com/setup_22.x -o nodesource_setup.sh
+RUN bash nodesource_setup.sh
+RUN yum install -y nodejs
 
 RUN yum install -y \
 	which \
