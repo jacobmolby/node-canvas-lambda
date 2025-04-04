@@ -1,5 +1,6 @@
 NODE_VERSION=22
 TEST_IMG_NAME=canvas-lambda-test
+AWS_PROFILE=feedr-management
 
 help:
 	@echo "Usage:"
@@ -26,7 +27,7 @@ publish:
 		--compatible-runtimes nodejs${NODE_VERSION}.x \
 		--zip-file "fileb://build/node${NODE_VERSION}_canvas_combined_layer.zip" \
 		--description "canvas@3.1.0" \
-		--profile feedr-management
+		--profile ${AWS_PROFILE}
 
 
 # This doesn't work for some reason. It would be nice to use this instead of the 
