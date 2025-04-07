@@ -1,4 +1,4 @@
-NODE_VERSION=22
+NODE_VERSION=20
 TEST_IMG_NAME=canvas-lambda-test
 AWS_PROFILE=feedr-management
 

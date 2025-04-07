@@ -1,16 +1,16 @@
 FROM amd64/amazonlinux:2023
 
 ARG OUT=/root/layers
-ARG NODE_VERSION=22
+ARG NODE_VERSION=20
 
 # set up container
 RUN yum -y update 
 RUN yum -y groupinstall "Development Tools" 
 
 
-# Install node 22
+# Install node ${NODE_VERSION}
 RUN yum install -y gcc-c++ make 
-RUN curl -sL https://rpm.nodesource.com/setup_22.x -o nodesource_setup.sh
+RUN curl -sL https://rpm.nodesource.com/setup_${NODE_VERSION}.x -o nodesource_setup.sh
 RUN bash nodesource_setup.sh
 RUN yum install -y nodejs
 
